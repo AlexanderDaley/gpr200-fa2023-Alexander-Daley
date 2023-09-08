@@ -39,7 +39,7 @@ const char* fragmentShaderSource = R"(
 )";
 
 //Creates a new vertex array object with vertex data
-unsigned int createVAO(float* vertexData, int numVertices) {
+unsigned int createVAO(float* vertexData, int numVertices, int totalLength) {
 
 	unsigned int vao;
 	glGenVertexArrays(1, &vao);
@@ -51,14 +51,14 @@ unsigned int createVAO(float* vertexData, int numVertices) {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	//allocate space for + send vertex data to gpu
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numVertices, vertexData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * totalLength, vertexData, GL_STATIC_DRAW);
 
 	//Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 7, (const void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * totalLength/numVertices, (const void*)0);
 	glEnableVertexAttribArray(0);
 
 	//Color attribute
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 7, (const void*)(sizeof(float) * 3));
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float) * totalLength/numVertices, (const void*)(sizeof(float) * 3));
 	glEnableVertexAttribArray(1);
 
 	return(vao);
@@ -135,7 +135,7 @@ int main() {
 		return 1;
 	}
 
-	unsigned int vao = createVAO(vertices, 3);
+	unsigned int vao = createVAO(vertices, 3, 21);
 	unsigned int shader = createShaderProgram(vertexShaderSource, fragmentShaderSource);
 
 	while (!glfwWindowShouldClose(window)) {
