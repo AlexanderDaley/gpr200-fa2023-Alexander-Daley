@@ -1,4 +1,6 @@
 #include "shader.h"
+#include <fstream>
+#include <sstream>
 #include "../ew/external/glad.h"
 
 namespace AOD {
@@ -6,7 +8,7 @@ namespace AOD {
 	std::string loadShaderSourceFromFile(const std::string& filePath) {
 		std::ifstream fstream(filePath);
 		if (!fstream.is_open()) {
-			printf("Failed to load file %s", filePath);
+			printf("Failed to load file %s", filePath.c_str());
 			return {};
 		}
 		std::stringstream buffer;
@@ -33,17 +35,24 @@ namespace AOD {
 		return shader;
 	}
 
-	//function to create shader program
+	//Creates a new shader program with vertex + fragment stages
+	//Returns id of new shader program if successful, 0 if failed
 	unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource) {
+		//Create a new vertex shader object
 		unsigned int vertexShader = createShader(GL_VERTEX_SHADER, vertexShaderSource);
+		//Create a new fragment shader object
 		unsigned int fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
 
 		unsigned int shaderProgram = glCreateProgram();
 		//Attach each stage
 		glAttachShader(shaderProgram, vertexShader);
+		//glAttachShader(shaderProgram, geometryShader);
 		glAttachShader(shaderProgram, fragmentShader);
 		//Link all the stages together
 		glLinkProgram(shaderProgram);
+
+		//glLinkProgram...
+		//Check for linking errors
 		int success;
 		glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 		if (!success) {
@@ -54,7 +63,7 @@ namespace AOD {
 		//The linked program now contains our compiled code, so we can delete these intermediate objects
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
-		return shaderProgram;
+		return(shaderProgram);
 	}
 
 	//Shader class

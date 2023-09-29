@@ -2,9 +2,11 @@
 
 #include <sstream>
 #include <fstream>
+#include <string>
 
 namespace AOD {
 	std::string loadShaderSourceFromFile(const std::string& filePath);
+	unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
 
 	class Shader {
 	public:
