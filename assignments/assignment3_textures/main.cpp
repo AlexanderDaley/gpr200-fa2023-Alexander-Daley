@@ -8,7 +8,8 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-#include <ew/shader.h>
+#include <AOD/shader.h>
+#include <AOD/texture.h>
 
 struct Vertex {
 	float x, y, z;
@@ -58,7 +59,13 @@ int main() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
-	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	AOD::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	unsigned int brickTexture = loadTexture("assets/brick.png", GL_REPEAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+	unsigned int noiseTexture = loadTexture("assets/noise.png", GL_REPEAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, brickTexture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, noiseTexture);
 
 	unsigned int quadVAO = createVAO(vertices, 4, indices, 6);
 
@@ -71,6 +78,10 @@ int main() {
 
 		//Set uniforms
 		shader.use();
+		//Make sampler2D _BrickTexture sample from unit 0
+		shader.setInt("_BrickTexture", 0);
+		//Make sampler2D _MarioTexture sample from unit 1
+		shader.setInt("_NoiseTexture", 1);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 

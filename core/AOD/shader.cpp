@@ -79,15 +79,15 @@ namespace AOD {
 	}
 	void Shader::setVec2(const std::string& name, float x, float y) const
 	{
-		glUniform1f(glGetUniformLocation(m_id, name.c_str()), x, y);
+		glUniform2f(glGetUniformLocation(m_id, name.c_str()), x, y);
 	}
 	void Shader::setVec3(const std::string& name, float x, float y, float z) const
 	{
-		glUniform1f(glGetUniformLocation(m_id, name.c_str()), x, y, z);
+		glUniform3f(glGetUniformLocation(m_id, name.c_str()), x, y, z);
 	}
 	void Shader::setVec4(const std::string& name, float x, float y, float z, float w) const
 	{
-		glUniform1f(glGetUniformLocation(m_id, name.c_str()), x, y, float z, float w);
+		glUniform4f(glGetUniformLocation(m_id, name.c_str()), x, y, z, w);
 	}
 }
 
