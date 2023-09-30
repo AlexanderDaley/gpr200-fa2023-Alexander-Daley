@@ -59,32 +59,47 @@ int main() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
-	AOD::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	AOD::Shader bgShader("assets/bgShader.vert", "assets/bgShader.frag");
+	AOD::Shader gegeShader("assets/gegeShader.vert", "assets/gegeShader.frag");
 	unsigned int brickTexture = loadTexture("assets/brick.png");
+	unsigned int otherTexture = loadTexture("assets/okexture.png");
 	unsigned int noiseTexture = loadTexture("assets/noise.png");
-	//Place brickTexture in unit 0
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, brickTexture);
-	//Place noiseTexture in unit 1
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, noiseTexture);
+	unsigned int gegeTexture = loadTexture("assets/Gege.png");
 
 	unsigned int quadVAO = createVAO(vertices, 4, indices, 6);
 
 	glBindVertexArray(quadVAO);
 
+	float timeMod = 1.0;
+
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		//Set uniforms
-		shader.use();
-		//Make sampler2D _BrickTexture sample from unit 0
-		shader.setInt("_BrickTexture", 0);
-		//Make sampler2D _NoiseTexture sample from unit 1
-		shader.setInt("_NoiseTexture", 1);
+		//Draw background
+		bgShader.use();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, brickTexture);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, otherTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, noiseTexture);
+		bgShader.setInt("noiseTexture", 1);
+		bgShader.setInt("exTexture", 2);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 
+		//Draw character
+		gegeShader.use();
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, gegeTexture);
+		gegeShader.setInt("gegeTexture", 3);
+		gegeShader.setFloat("gegeHeight", 0.5);
+		gegeShader.setFloat("gegeWidth", 0.5);
+		gegeShader.setFloat("timeMod", timeMod);
+		gegeShader.setFloat("time", glfwGetTime());
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 
 		//Render UI
@@ -94,6 +109,7 @@ int main() {
 			ImGui::NewFrame();
 
 			ImGui::Begin("Settings");
+			ImGui::DragFloat("Rotation speed", &timeMod);
 			ImGui::End();
 
 			ImGui::Render();
