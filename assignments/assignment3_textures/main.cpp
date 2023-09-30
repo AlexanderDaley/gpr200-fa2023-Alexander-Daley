@@ -60,10 +60,12 @@ int main() {
 	ImGui_ImplOpenGL3_Init();
 
 	AOD::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
-	unsigned int brickTexture = loadTexture("assets/brick.png", GL_REPEAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
-	unsigned int noiseTexture = loadTexture("assets/noise.png", GL_REPEAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
+	unsigned int brickTexture = loadTexture("assets/brick.png");
+	unsigned int noiseTexture = loadTexture("assets/noise.png");
+	//Place brickTexture in unit 0
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, brickTexture);
+	//Place noiseTexture in unit 1
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, noiseTexture);
 
@@ -80,7 +82,7 @@ int main() {
 		shader.use();
 		//Make sampler2D _BrickTexture sample from unit 0
 		shader.setInt("_BrickTexture", 0);
-		//Make sampler2D _MarioTexture sample from unit 1
+		//Make sampler2D _NoiseTexture sample from unit 1
 		shader.setInt("_NoiseTexture", 1);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
