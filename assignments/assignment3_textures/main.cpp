@@ -89,6 +89,7 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, noiseTexture);
 		bgShader.setInt("noiseTexture", 1);
 		bgShader.setInt("exTexture", 2);
+		bgShader.setFloat("time", glfwGetTime());
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 
 		//Draw character

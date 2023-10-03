@@ -5,10 +5,11 @@ in vec2 UV;
 uniform sampler2D wallTexture;
 uniform sampler2D exTexture;
 uniform sampler2D noiseTexture;
+uniform float time;
 
 void main(){
 	
-	float noise = texture(noiseTexture,UV).r;
+	float noise = texture(noiseTexture,UV*time).r;
 	vec2 uv = UV + noise * 0.1f;
 	vec4 colorA = texture(wallTexture,uv);
 	vec4 colorB = texture(exTexture,uv);
