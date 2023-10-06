@@ -8,7 +8,8 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-#include <ew/shader.h>
+#include <AOD/shader.h>
+#include <AOD/transformations.h>
 #include <ew/ewMath/vec3.h>
 #include <ew/procGen.h>
 
@@ -51,7 +52,11 @@ int main() {
 	//Depth testing - required for depth sorting!
 	glEnable(GL_DEPTH_TEST);
 
-	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	AOD::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	AOD::Transform transformArray[4];
+	for (int i = 0; i < 4; i++) {
+		transformArray[i].position = ew::Vec3(((0 - i%2) + 0.5f), ((0 - (i/2)) + 0.5f), 0.0f);
+	}
 	
 	//Cube mesh
 	ew::Mesh cubeMesh(ew::createCube(0.5f));
@@ -62,11 +67,14 @@ int main() {
 		//Clear both color buffer AND depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//Set uniforms
 		shader.use();
-
-		//TODO: Set model matrix uniform
-
+		shader.setMat4("_Model", transformArray[0].getModelMatrix());
+		cubeMesh.draw();
+		shader.setMat4("_Model", transformArray[1].getModelMatrix());
+		cubeMesh.draw();
+		shader.setMat4("_Model", transformArray[2].getModelMatrix());
+		cubeMesh.draw();
+		shader.setMat4("_Model", transformArray[3].getModelMatrix());
 		cubeMesh.draw();
 
 		//Render UI
@@ -76,6 +84,20 @@ int main() {
 			ImGui::NewFrame();
 
 			ImGui::Begin("Transform");
+			for (int i = 0; i < 4; i++) {
+				ImGui::PushID(i);
+				if (ImGui::CollapsingHeader("Transform")) {
+					ImGui::DragFloat3("Position", &transformArray[i].position.x, 0.05f);
+					ImGui::DragFloat3("Rotation", &transformArray[i].rotation.x, 1.0f);
+					ImGui::DragFloat3("Scale", &transformArray[i].scale.x, 0.05f);
+					if (ImGui::Button("Reset")) {
+						transformArray[i].position = ew::Vec3(((0 - i % 2) + 0.5f), ((0 - (i / 2)) + 0.5f), 0.0f);
+						transformArray[i].rotation = ew::Vec3(0.0f,0.0f,0.0f);
+						transformArray[i].scale = ew::Vec3(1.0f,1.0f,1.0f);
+					}
+				}
+				ImGui::PopID();
+			}
 			ImGui::End();
 
 			ImGui::Render();
