@@ -67,6 +67,24 @@ namespace AOD {
 		);
 	};
 
+	//Creates a right handed view space
+	//eye = eye (camera) position
+	//target = position to look at
+	//up = up axis, usually(0,1,0)
+	inline ew::Mat4 LookAt(ew::Vec3 eye, ew::Vec3 target, ew::Vec3 up) {
+		
+	};
+	//Orthographic projection
+	inline ew::Mat4 Orthographic(float height, float aspect, float near, float far) {
+		
+	};
+	//Perspective projection
+	//fov = vertical aspect ratio (radians)
+	inline ew::Mat4 Perspective(float fov, float aspect, float near, float far) {
+		
+	};
+
+
 	//Struct holds the worldspace position, rotation, and scale of an object
 	struct Transform{
 		ew::Vec3 position = ew::Vec3(0.0f, 0.0f, 0.0f);
