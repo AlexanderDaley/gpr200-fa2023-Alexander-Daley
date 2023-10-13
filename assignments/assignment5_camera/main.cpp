@@ -11,12 +11,13 @@
 #include <ew/shader.h>
 #include <ew/procGen.h>
 #include <ew/transform.h>
+#include <AOD/camera.h>
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
 //Projection will account for aspect ratio!
-const int SCREEN_WIDTH = 1080;
-const int SCREEN_HEIGHT = 720;
+int SCREEN_WIDTH = 1080;
+int SCREEN_HEIGHT = 720;
 
 const int NUM_CUBES = 4;
 ew::Transform cubeTransforms[NUM_CUBES];
@@ -40,6 +41,9 @@ int main() {
 		printf("GLAD Failed to load GL headers");
 		return 1;
 	}
+
+	//Initialize camera object
+	AOD::Camera camera;
 
 	//Initialize ImGUI
 	IMGUI_CHECKVERSION();
@@ -116,5 +120,7 @@ int main() {
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+	SCREEN_WIDTH = width;
+	SCREEN_HEIGHT = height;
 }
 
