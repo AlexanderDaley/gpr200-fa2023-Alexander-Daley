@@ -113,7 +113,7 @@ namespace AOD {
 		ew::Vec3 rotation = ew::Vec3(0.0f, 0.0f, 0.0f); //Euler angles (degrees)
 		ew::Vec3 scale = ew::Vec3(1.0f, 1.0f, 1.0f);
 		ew::Mat4 getModelMatrix() const {
-			return (Translate(position) * RotateY(rotation.y) * RotateX(rotation.x) * RotateZ(rotation.z) * Scale(scale));
+			return (AOD::Translate(position) * AOD::RotateY(rotation.y) * AOD::RotateX(rotation.x) * AOD::RotateZ(rotation.z) * AOD::Scale(scale));
 		}
 	};
 

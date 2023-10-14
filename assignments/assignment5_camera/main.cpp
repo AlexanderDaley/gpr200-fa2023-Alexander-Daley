@@ -43,7 +43,7 @@ int main() {
 	}
 
 	//Initialize camera object
-	AOD::Camera camera;
+	AOD::Camera camera = {ew::Vec3(0,0,5),ew::Vec3(0,0,0),60,SCREEN_WIDTH/SCREEN_HEIGHT,0.1,100,true,6};
 
 	//Initialize ImGUI
 	IMGUI_CHECKVERSION();
@@ -87,6 +87,9 @@ int main() {
 			cubeMesh.draw();
 		}
 
+		shader.setMat4("_View", camera.ViewMatrix());
+		shader.setMat4("_Projection", camera.ProjectionMatrix());
+
 		//Render UI
 		{
 			ImGui_ImplGlfw_NewFrame();
@@ -106,6 +109,12 @@ int main() {
 				ImGui::PopID();
 			}
 			ImGui::Text("Camera");
+			ImGui::DragFloat3("Rotation", &camera.position.x, 0.05f);
+			ImGui::DragFloat3("Target", &camera.target.x, 0.05f);
+			ImGui::Checkbox("Orthographic", &camera.orthographic);
+			ImGui::DragFloat("Ortho Height", &camera.orthoSize, 0.05f);
+			ImGui::DragFloat("Near Plane", &camera.nearPlane, 0.05f);
+			ImGui::DragFloat("Far Plane", &camera.farPlane, 0.05f);
 			ImGui::End();
 			
 			ImGui::Render();
