@@ -43,7 +43,7 @@ int main() {
 	}
 
 	//Initialize camera object
-	AOD::Camera camera = {ew::Vec3(0,0,5),ew::Vec3(0,0,0),60,SCREEN_WIDTH/SCREEN_HEIGHT,0.1,100,true,6};
+	AOD::Camera camera = {ew::Vec3(0,0,5),ew::Vec3(0,0,0),60,SCREEN_WIDTH/SCREEN_HEIGHT,0.1,100,true,6};	
 
 	//Initialize ImGUI
 	IMGUI_CHECKVERSION();
