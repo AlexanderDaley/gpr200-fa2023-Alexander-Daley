@@ -43,7 +43,8 @@ int main() {
 	}
 
 	//Initialize camera object
-	AOD::Camera camera = {ew::Vec3(0,0,5),ew::Vec3(0,0,0),60,SCREEN_WIDTH/SCREEN_HEIGHT,0.1,100,true,6};	
+	AOD::Camera camera = {ew::Vec3(0,0,5),ew::Vec3(0,0,0),60,SCREEN_WIDTH/SCREEN_HEIGHT,0.1,100,true,6};
+	AOD::CameraControls cameraControls;
 
 	//Initialize ImGUI
 	IMGUI_CHECKVERSION();
@@ -70,8 +71,18 @@ int main() {
 		cubeTransforms[i].position.y = i / (NUM_CUBES / 2) - 0.5;
 	}
 
+	float prevTime = 0; //Timestamp of previous frame
+
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
+
+		//Calculate deltaTime
+		float time = (float)glfwGetTime(); //Timestamp of current frame
+		float deltaTime = time - prevTime;
+		prevTime = time;
+
+		cameraControls.moveCamera(window, &camera, &cameraControls, deltaTime);
+
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		//Clear both color buffer AND depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -115,6 +126,10 @@ int main() {
 			ImGui::DragFloat("Ortho Height", &camera.orthoSize, 0.05f);
 			ImGui::DragFloat("Near Plane", &camera.nearPlane, 0.05f);
 			ImGui::DragFloat("Far Plane", &camera.farPlane, 0.05f);
+			if (ImGui::Button("ResetCamera")) {
+				camera.resetCamera();
+				cameraControls.resetControls();
+			}
 			ImGui::End();
 			
 			ImGui::Render();
