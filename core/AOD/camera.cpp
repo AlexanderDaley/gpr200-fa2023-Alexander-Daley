@@ -11,7 +11,7 @@ namespace AOD {
 			return(AOD::Orthographic(orthoSize, aspectRatio, nearPlane, farPlane));
 		}
 		else {
-			return(AOD::Perspective(fov, aspectRatio, nearPlane, farPlane));
+			return(AOD::Perspective(ew::Radians(fov), aspectRatio, nearPlane, farPlane));
 		}
 	}
 
@@ -38,8 +38,8 @@ namespace AOD {
 			controls->prevMouseY = mouseY;
 		}
 
-		pitch = mouseY - prevMouseY;
-		yaw = mouseX - prevMouseX;
+		pitch -= mouseSensitivity*(mouseY - prevMouseY);
+		yaw += mouseSensitivity*(mouseX - prevMouseX);
 		if (pitch > 89) {
 			pitch = 89;
 		}
@@ -50,7 +50,7 @@ namespace AOD {
 		float pitchRad = ew::Radians(pitch);
 		float yawRad = ew::Radians(yaw);
 
-		ew::Vec3 forward = (sin(yawRad) * cos(pitchRad), sin(pitchRad), -cos(yawRad) * cos(pitchRad));
+		ew::Vec3 forward = ew::Vec3 (sin(yawRad) * cos(pitchRad), sin(pitchRad), -cos(yawRad) * cos(pitchRad));
 
 		ew::Vec3 right = ew::Normalize(ew::Cross(ew::Vec3(0,1,0), forward));
 		ew::Vec3 up = ew::Normalize(ew::Cross(forward, right));
@@ -60,13 +60,19 @@ namespace AOD {
 			camera->position += forward * controls->moveSpeed * deltaTime;
 		}
 		if (glfwGetKey(window, GLFW_KEY_A)) {
-			camera->position -= right * controls->moveSpeed * deltaTime;
+			camera->position += right * controls->moveSpeed * deltaTime;
 		}
 		if (glfwGetKey(window, GLFW_KEY_S)) {
 			camera->position -= forward * controls->moveSpeed * deltaTime;
 		}
 		if (glfwGetKey(window, GLFW_KEY_D)) {
-			camera->position += right * controls->moveSpeed * deltaTime;
+			camera->position -= right * controls->moveSpeed * deltaTime;
+		}
+		if (glfwGetKey(window, GLFW_KEY_Q)) {
+			camera->position -= up * controls->moveSpeed * deltaTime;
+		}
+		if (glfwGetKey(window, GLFW_KEY_E)) {
+			camera->position += up * controls->moveSpeed * deltaTime;
 		}
 
 		camera->target = camera->position + forward;
