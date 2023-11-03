@@ -88,13 +88,17 @@ int main() {
 
 	//Create mesh data 
 	ew::MeshData planeMeshData = AOD::createPlane(0.5f, 0.5f, 10);
+	ew::MeshData cylinderMeshData = AOD::createCylinder(0.5f, 0.5f, 10);
 
 	//Create mesh renderer
 	ew::Mesh planeMesh(planeMeshData);
+	ew::Mesh cylinderMesh(cylinderMeshData);
 
 	//Initialize transform
 	ew::Transform planeTransform;
+	ew::Transform cylinderTransform;
 	planeTransform.position = ew::Vec3(1.0f, 0.0f, 0.0f);
+	cylinderTransform.position = ew::Vec3(-1.5f, 0.0f, 0.0f);
 
 	resetCamera(camera,cameraController);
 
@@ -128,12 +132,15 @@ int main() {
 		ew::Vec3 lightF = ew::Vec3(sinf(lightRot.y) * cosf(lightRot.x), sinf(lightRot.x), -cosf(lightRot.y) * cosf(lightRot.x));
 		shader.setVec3("_LightDir", lightF);
 
-		//Draw cube
+		//Draw shapes
 		shader.setMat4("_Model", cubeTransform.getModelMatrix());
 		cubeMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
 
 		shader.setMat4("_Model", planeTransform.getModelMatrix());
 		planeMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
+
+		shader.setMat4("_Model", cylinderTransform.getModelMatrix());
+		cylinderMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
 
 		//Render UI
 		{

@@ -7,21 +7,86 @@ namespace AOD {
 
 	ew::MeshData createCylinder(float height, float radius, int numSegments) {
 		ew::MeshData mesh;
-		int topY = height / 2;
-		int bottomY = -topY;
+		float topY = height / 2;
+		float bottomY = -topY;
 		ew::Vertex v;
-		v.pos = ew::Vec3(0, topY, 0);
+		//front center
+		v.pos = ew::Vec3(0, 0, topY);
+		v.normal = ew::Vec3(0.0f, 0.0f, 1.0f);
 		mesh.vertices.push_back(v);
-		thetaStep = 2PI / numSegments;
-
+		//Back center
+		v.pos = ew::Vec3(0, 0, bottomY);
+		v.normal = ew::Vec3(0.0f, 0.0f, -1.0f);
+		mesh.vertices.push_back(v);
+		float thetaStep = 2*3.1415926535 / numSegments;
+		//Front cap (Forward normals)
 		for (int i = 0; i <= numSegments; i++) {
-			int theta = i * thetaStep;
+			float theta = i * thetaStep;
 			v.pos.x = cos(theta) * radius;
 			v.pos.y = sin(theta) * radius;
 			v.pos.z = topY;
+			v.normal = ew::Vec3(0.0f, 0.0f, 1.0f);
 			mesh.vertices.push_back(v);
 		}
+		//back cap (Forward normals)
+		for (int i = 0; i <= numSegments; i++) {
+			float theta = i * thetaStep;
+			v.pos.x = cos(theta) * radius;
+			v.pos.y = sin(theta) * radius;
+			v.pos.z = bottomY;
+			v.normal = ew::Vec3(0.0f, 0.0f, -1.0f);
+			mesh.vertices.push_back(v);
+		}
+		//Front cap (side normals)
+		for (int i = 0; i <= numSegments; i++) {
+			float theta = i * thetaStep;
+			v.pos.x = cos(theta) * radius;
+			v.pos.y = sin(theta) * radius;
+			v.pos.z = topY;
+			v.normal = ew::Vec3(1.0f, 0.0f, 0.0f);
+			mesh.vertices.push_back(v);
+		}
+		//back cap (side normals)
+		for (int i = 0; i <= numSegments; i++) {
+			float theta = i * thetaStep;
+			v.pos.x = cos(theta) * radius;
+			v.pos.y = sin(theta) * radius;
+			v.pos.z = bottomY;
+			v.normal = ew::Vec3(-1.0f, 0.0f, 0.0f);
+			mesh.vertices.push_back(v);
+		}
+		int start = 2;
+		int center = 0;
+		//front indices
+		for (int i = 0; i < numSegments; i++) {
+			mesh.indices.push_back(start + i + 1);
+			mesh.indices.push_back(center);
+			mesh.indices.push_back(start + i);
+		}
+		center = 1;
+		start = 3 + numSegments;
+		//back indices
+		for (int i = 0; i < numSegments; i++) {
+			mesh.indices.push_back(start + i);
+			mesh.indices.push_back(center);
+			mesh.indices.push_back(start + i + 1);
+		}
+		int sideStart = 4 + numSegments * 2;
+		int columns = numSegments + 1;
+		//Side indices
+		for (int i = 0; i < columns - 1; i++) {
+			start = sideStart + i;
+			//Triangle 1
+			mesh.indices.push_back(start + columns);
+			mesh.indices.push_back(start + 1);
+			mesh.indices.push_back(start);
+			//Triangle 2
+			mesh.indices.push_back(start + 1);
+			mesh.indices.push_back(start + columns);
+			mesh.indices.push_back(start + columns + 1);
+		}
 
+		return(mesh);
 	}
 
 	ew::MeshData createPlane(float width, float height, int subdivisions) {
