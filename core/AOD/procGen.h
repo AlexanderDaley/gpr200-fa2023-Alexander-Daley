@@ -1,6 +1,7 @@
 #pragma once
 #include "../ew/mesh.h"
 #include "math.h"
+#include <iostream>
 
 namespace AOD {
 	ew::MeshData createSphere(float radius, int numSegments);

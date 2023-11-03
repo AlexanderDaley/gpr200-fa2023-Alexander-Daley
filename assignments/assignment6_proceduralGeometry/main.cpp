@@ -89,16 +89,20 @@ int main() {
 	//Create mesh data 
 	ew::MeshData planeMeshData = AOD::createPlane(0.5f, 0.5f, 10);
 	ew::MeshData cylinderMeshData = AOD::createCylinder(0.5f, 0.5f, 10);
+	ew::MeshData sphereMeshData = AOD::createSphere(0.5f,10);
 
 	//Create mesh renderer
 	ew::Mesh planeMesh(planeMeshData);
 	ew::Mesh cylinderMesh(cylinderMeshData);
+	ew::Mesh sphereMesh(sphereMeshData);
 
 	//Initialize transform
 	ew::Transform planeTransform;
 	ew::Transform cylinderTransform;
+	ew::Transform sphereTransform;
 	planeTransform.position = ew::Vec3(1.0f, 0.0f, 0.0f);
 	cylinderTransform.position = ew::Vec3(-1.5f, 0.0f, 0.0f);
+	sphereTransform.position = ew::Vec3(2.5f, 0.0f, 0.0f);
 
 	resetCamera(camera,cameraController);
 
@@ -141,6 +145,9 @@ int main() {
 
 		shader.setMat4("_Model", cylinderTransform.getModelMatrix());
 		cylinderMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
+
+		shader.setMat4("_Model", sphereTransform.getModelMatrix());
+		sphereMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
 
 		//Render UI
 		{

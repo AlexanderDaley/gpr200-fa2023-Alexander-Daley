@@ -1,9 +1,65 @@
 #include "procGen.h"
 
 namespace AOD {
-	//ew::MeshData createSphere(float radius, int numSegments) {
+	ew::MeshData createSphere(float radius, int numSegments) {
+		float thetaStep = 2 * 3.1415926535 / numSegments;
+		float phiStep = 3.1415926535 / numSegments;
+		float phi, theta;
+		ew::Vertex v;
+		ew::MeshData mesh;
 
-	//}
+		//Set vertices
+		for (int row = 0; row <= numSegments; row++) {
+			phi = row * phiStep;
+			for(int col = 0; col <= numSegments; col++){
+				theta = col * thetaStep;
+				v.pos.x = radius * cos(theta) * sin(phi);
+				v.pos.y = radius * cos(phi);
+				v.pos.z = radius * sin(theta) * sin(phi);
+				v.normal = ew::Normalize(v.pos);
+				v.uv = ew::Vec2(1 - (float)row / numSegments, (float)col / numSegments);
+				mesh.vertices.push_back(v);
+				
+			}
+		}
+
+		int poleStart = 0;
+		int sideStart = numSegments + 1;
+		//Set top cap indices
+		for (int i = 0; i < numSegments; i++) {
+			mesh.indices.push_back(sideStart + i);
+			mesh.indices.push_back(poleStart + i);
+			mesh.indices.push_back(sideStart + i + 1);
+		}
+		
+		int columns = numSegments + 1;
+		int start;
+		//Set row indices
+		for (int row = 1; row < numSegments - 1; row++) {
+			for (int col = 0; col < numSegments; col++) {
+				start = row * columns + col;
+				//First triangle
+				mesh.indices.push_back(start);
+				mesh.indices.push_back(start + 1);
+				mesh.indices.push_back(start + columns);
+				//Second triangle
+				mesh.indices.push_back(start + columns + 1);
+				mesh.indices.push_back(start + columns);
+				mesh.indices.push_back(start + 1);
+			}
+		}
+
+		poleStart = (numSegments + 1)*(numSegments) + 1;
+		sideStart = (numSegments + 1)*(numSegments) - numSegments - 1;
+		//Set bottom cap indices
+		for (int i = 0; i < numSegments; i++) {
+			mesh.indices.push_back(sideStart + i + 1);
+			mesh.indices.push_back(poleStart + i);
+			mesh.indices.push_back(sideStart + i);
+		}
+
+		return(mesh);
+	}
 
 	ew::MeshData createCylinder(float height, float radius, int numSegments) {
 		ew::MeshData mesh;
@@ -13,10 +69,12 @@ namespace AOD {
 		//front center
 		v.pos = ew::Vec3(0, 0, topY);
 		v.normal = ew::Vec3(0.0f, 0.0f, 1.0f);
+		v.uv = ew::Vec2(0.5f, 0.5f);
 		mesh.vertices.push_back(v);
 		//Back center
 		v.pos = ew::Vec3(0, 0, bottomY);
 		v.normal = ew::Vec3(0.0f, 0.0f, -1.0f);
+		v.uv = ew::Vec2(0.5f, 0.5f);
 		mesh.vertices.push_back(v);
 		float thetaStep = 2*3.1415926535 / numSegments;
 		//Front cap (Forward normals)
@@ -26,6 +84,7 @@ namespace AOD {
 			v.pos.y = sin(theta) * radius;
 			v.pos.z = topY;
 			v.normal = ew::Vec3(0.0f, 0.0f, 1.0f);
+			v.uv = ew::Vec2((sin(theta)+1) / 2,(cos(theta)+1)/2);
 			mesh.vertices.push_back(v);
 		}
 		//back cap (Forward normals)
@@ -35,6 +94,7 @@ namespace AOD {
 			v.pos.y = sin(theta) * radius;
 			v.pos.z = bottomY;
 			v.normal = ew::Vec3(0.0f, 0.0f, -1.0f);
+			v.uv = ew::Vec2((-sin(theta) + 1) / 2, (-cos(theta) + 1) / 2);
 			mesh.vertices.push_back(v);
 		}
 		//Front cap (side normals)
@@ -43,7 +103,8 @@ namespace AOD {
 			v.pos.x = cos(theta) * radius;
 			v.pos.y = sin(theta) * radius;
 			v.pos.z = topY;
-			v.normal = ew::Vec3(1.0f, 0.0f, 0.0f);
+			v.normal = ew::Vec3(cos(theta), sin(theta), 0.0f);
+			v.uv = ew::Vec2((cos(theta) + 1) / 2, 1);
 			mesh.vertices.push_back(v);
 		}
 		//back cap (side normals)
@@ -52,7 +113,8 @@ namespace AOD {
 			v.pos.x = cos(theta) * radius;
 			v.pos.y = sin(theta) * radius;
 			v.pos.z = bottomY;
-			v.normal = ew::Vec3(-1.0f, 0.0f, 0.0f);
+			v.normal = ew::Vec3(cos(theta), sin(theta), 0.0f);
+			v.uv = ew::Vec2((cos(theta) + 1) / 2, 0);
 			mesh.vertices.push_back(v);
 		}
 		int start = 2;
