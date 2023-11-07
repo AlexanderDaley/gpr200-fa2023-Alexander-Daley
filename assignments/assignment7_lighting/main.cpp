@@ -112,6 +112,8 @@ int main() {
 		cylinderMesh.draw();
 
 		//TODO: Render point lights
+		//shader.setVec4("_Lights[0].position", lights[0].position);
+		//shader.setVec3("_Lights[0].color", lights[0].color);
 
 		//Render UI
 		{
