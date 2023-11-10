@@ -21,11 +21,25 @@ void resetCamera(ew::Camera& camera, ew::CameraController& cameraController);
 int SCREEN_WIDTH = 1080;
 int SCREEN_HEIGHT = 720;
 
+struct Material {
+	float ambientK; //Ambient coefficient (0-1)
+	float diffuseK; //Diffuse coefficient (0-1)
+	float specular; //Specular coefficient (0-1)
+	float shininess; //Shininess
+};
+
+struct Light {
+	ew::Transform transform;  //Struct transform
+	ew::Vec3 color; //RGB
+};
+
 float prevTime;
 ew::Vec3 bgColor = ew::Vec3(0.1f);
 
 ew::Camera camera;
 ew::CameraController cameraController;
+
+Light lights[3];
 
 int main() {
 	printf("Initializing...");
@@ -59,6 +73,7 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 
 	ew::Shader shader("assets/defaultLit.vert", "assets/defaultLit.frag");
+	ew::Shader lightShader("assets/unlit.vert", "assets/unlit.frag");
 	unsigned int brickTexture = ew::loadTexture("assets/brick_color.jpg",GL_REPEAT,GL_LINEAR);
 
 	//Create cube
@@ -72,9 +87,15 @@ int main() {
 	ew::Transform planeTransform;
 	ew::Transform sphereTransform;
 	ew::Transform cylinderTransform;
+	ew::Transform lightSphereTransform1;
+	ew::Transform lightSphereTransform2;
+	ew::Transform lightSphereTransform3;
 	planeTransform.position = ew::Vec3(0, -1.0, 0);
 	sphereTransform.position = ew::Vec3(-1.5f, 0.0f, 0.0f);
 	cylinderTransform.position = ew::Vec3(1.5f, 0.0f, 0.0f);
+	lightSphereTransform1.position = ew::Vec3(-1.5f, 1.5f, 0.0f);
+	lightSphereTransform2.position = ew::Vec3(0.0f, 1.5f, 0.0f);
+	lightSphereTransform3.position = ew::Vec3(1.5f, 1.5f, 0.0f);
 
 	resetCamera(camera,cameraController);
 
@@ -111,9 +132,33 @@ int main() {
 		shader.setMat4("_Model", cylinderTransform.getModelMatrix());
 		cylinderMesh.draw();
 
-		//TODO: Render point lights
-		//shader.setVec4("_Lights[0].position", lights[0].position);
-		//shader.setVec3("_Lights[0].color", lights[0].color);
+		//Render point lights
+		shader.setVec3("_Lights[0].position", lights[0].transform.position);
+		shader.setVec3("_Lights[0].color", lights[0].color);
+
+		shader.setVec3("_Lights[1].position", lights[1].transform.position);
+		shader.setVec3("_Lights[1].color", lights[1].color);
+
+		shader.setVec3("_Lights[2].position", lights[2].transform.position);
+		shader.setVec3("_Lights[2].color", lights[2].color);
+
+		//Use new shader for light sources
+		lightShader.use();
+
+		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
+
+		//Draw shapes
+		lightShader.setMat4("_Model", lightSphereTransform1.getModelMatrix());
+		lightShader.setVec3("_Color", lights[0].color);
+		sphereMesh.draw();
+
+		lightShader.setMat4("_Model", lightSphereTransform2.getModelMatrix());
+		lightShader.setVec3("_Color", lights[1].color);
+		sphereMesh.draw();
+
+		lightShader.setMat4("_Model", lightSphereTransform3.getModelMatrix());
+		lightShader.setVec3("_Color", lights[2].color);
+		sphereMesh.draw();
 
 		//Render UI
 		{
