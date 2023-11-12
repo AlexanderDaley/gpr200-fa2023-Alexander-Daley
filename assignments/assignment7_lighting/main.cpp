@@ -34,12 +34,11 @@ struct Light {
 };
 
 float prevTime;
+int currentLights = 3;
 ew::Vec3 bgColor = ew::Vec3(0.1f);
 
 ew::Camera camera;
 ew::CameraController cameraController;
-
-Light lights[3];
 
 int main() {
 	printf("Initializing...");
@@ -61,6 +60,15 @@ int main() {
 		return 1;
 	}
 
+	//Initialize light array
+	Light lights[3];
+	lights[0].color = ew::Vec3(1.0f, 0.0f, 0.0f);
+	lights[1].color = ew::Vec3(0.0f, 1.0f, 0.0f);
+	lights[2].color = ew::Vec3(0.0f, 0.0f, 1.0f);
+
+	//Initialize world material
+	Material mat = { 0, 1, 1, 50 };
+
 	//Initialize ImGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -72,6 +80,7 @@ int main() {
 	glCullFace(GL_BACK);
 	glEnable(GL_DEPTH_TEST);
 
+	//Initialize shaders and textures
 	ew::Shader shader("assets/defaultLit.vert", "assets/defaultLit.frag");
 	ew::Shader lightShader("assets/unlit.vert", "assets/unlit.frag");
 	unsigned int brickTexture = ew::loadTexture("assets/brick_color.jpg",GL_REPEAT,GL_LINEAR);
@@ -96,6 +105,9 @@ int main() {
 	lightSphereTransform1.position = ew::Vec3(-1.5f, 1.5f, 0.0f);
 	lightSphereTransform2.position = ew::Vec3(0.0f, 1.5f, 0.0f);
 	lightSphereTransform3.position = ew::Vec3(1.5f, 1.5f, 0.0f);
+	lightSphereTransform1.scale = ew::Vec3(0.5f, 0.5f, 0.5f);
+	lightSphereTransform2.scale = ew::Vec3(0.5f, 0.5f, 0.5f);
+	lightSphereTransform3.scale = ew::Vec3(0.5f, 0.5f, 0.5f);
 
 	resetCamera(camera,cameraController);
 
@@ -118,8 +130,15 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, brickTexture);
 		shader.setInt("_Texture", 0);
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
+		shader.setInt("currentLights", currentLights);
 
-		//Draw shapes
+		//Draw shapes from shader
+		shader.setFloat("_Material.ambientK", mat.ambientK);
+		shader.setFloat("_Material.diffuseK", mat.diffuseK);
+		shader.setFloat("_Material.specular", mat.specular);
+		shader.setFloat("_Material.shininess", mat.shininess);
+		shader.setVec3("camPos", camera.position);
+
 		shader.setMat4("_Model", cubeTransform.getModelMatrix());
 		cubeMesh.draw();
 
@@ -133,6 +152,10 @@ int main() {
 		cylinderMesh.draw();
 
 		//Render point lights
+		lights[0].transform = lightSphereTransform1;
+		lights[1].transform = lightSphereTransform2;
+		lights[2].transform = lightSphereTransform3;
+
 		shader.setVec3("_Lights[0].position", lights[0].transform.position);
 		shader.setVec3("_Lights[0].color", lights[0].color);
 
@@ -144,10 +167,9 @@ int main() {
 
 		//Use new shader for light sources
 		lightShader.use();
-
 		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
 
-		//Draw shapes
+		//Draw shapes from lightShader
 		lightShader.setMat4("_Model", lightSphereTransform1.getModelMatrix());
 		lightShader.setVec3("_Color", lights[0].color);
 		sphereMesh.draw();
@@ -167,6 +189,7 @@ int main() {
 			ImGui::NewFrame();
 
 			ImGui::Begin("Settings");
+			//ImGui settings for camera
 			if (ImGui::CollapsingHeader("Camera")) {
 				ImGui::DragFloat3("Position", &camera.position.x, 0.1f);
 				ImGui::DragFloat3("Target", &camera.target.x, 0.1f);
@@ -185,7 +208,30 @@ int main() {
 					resetCamera(camera, cameraController);
 				}
 			}
-
+			//ImGui for setting materials
+			if (ImGui::CollapsingHeader("World Materials")) {
+				ImGui::DragFloat("Ambient Constant", &mat.ambientK, 0.1f,0.0f,1.0f);
+				ImGui::DragFloat("Diffuse Constant", &mat.diffuseK, 0.1f,0.0f,1.0f);
+				ImGui::DragFloat("Specular Constant", &mat.specular,0.1f,0.0f,1.0f);
+				ImGui::DragFloat("Shininess", &mat.shininess);
+			}
+			//ImGui for setting light 1 position and color
+			if (ImGui::CollapsingHeader("Light 1")) {
+				ImGui::DragFloat3("Light Position", &lightSphereTransform1.position.x, 0.1f);
+				ImGui::DragFloat3("Light Color", &lights[0].color.x, 0.1f,0.0f,1.0f);
+			}
+			//ImGui for setting light 2 position and color
+			if (ImGui::CollapsingHeader("Light 2")) {
+				ImGui::DragFloat3("Light Position", &lightSphereTransform2.position.x, 0.1f);
+				ImGui::DragFloat3("Light Color", &lights[1].color.x, 0.1f, 0.0f, 1.0f);
+			}
+			//ImGui for setting light 3 position and color
+			if (ImGui::CollapsingHeader("Light 3")) {
+				ImGui::DragFloat3("Light Position", &lightSphereTransform3.position.x, 0.1f);
+				ImGui::DragFloat3("Light Color", &lights[2].color.x, 0.1f, 0.0f, 1.0f);
+			}
+			//ImGui for num lights and bg color
+			ImGui::DragInt("Number of Lights", &currentLights, 1.0f, 1, 3);
 			ImGui::ColorEdit3("BG color", &bgColor.x);
 			ImGui::End();
 			
